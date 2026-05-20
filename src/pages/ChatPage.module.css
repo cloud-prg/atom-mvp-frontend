@@ -1,0 +1,229 @@
+.shell {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  min-height: 100vh;
+  background: #f6f6f6;
+}
+
+.sidebar {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  gap: 18px;
+  border-right: 1px solid rgba(13, 13, 13, 0.06);
+  padding: 20px;
+}
+
+.sidebarHeader,
+.userCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.muted {
+  color: rgba(13, 13, 13, 0.55);
+  font-size: 13px;
+}
+
+.conversationList {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+}
+
+.conversationItem {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: transparent;
+  color: rgba(13, 13, 13, 0.82);
+  cursor: pointer;
+  padding: 12px;
+  text-align: left;
+}
+
+.conversationItem:hover,
+.active {
+  border-color: rgba(13, 13, 13, 0.06);
+  background: #fff;
+}
+
+.deleteIcon {
+  color: rgba(13, 13, 13, 0.35);
+  opacity: 0;
+}
+
+.conversationItem:hover .deleteIcon {
+  opacity: 1;
+}
+
+.userCard {
+  border: 1px solid rgba(13, 13, 13, 0.06);
+  border-radius: 18px;
+  background: #fff;
+  padding: 14px;
+}
+
+.workspace {
+  display: grid;
+  min-width: 0;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  padding: 24px;
+}
+
+.topbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.topbar h1 {
+  margin: 0;
+  color: rgba(13, 13, 13, 0.95);
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 40px;
+}
+
+.topbar p {
+  margin: 6px 0 0;
+  color: rgba(13, 13, 13, 0.55);
+}
+
+.messagePanel {
+  overflow-y: auto;
+  border: 1px solid rgba(13, 13, 13, 0.06);
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 8px 24px -4px rgba(13, 13, 13, 0.08), 0 4px 4px rgba(13, 13, 13, 0.04);
+  padding: 24px;
+}
+
+.emptyHero {
+  display: grid;
+  height: 100%;
+  min-height: 360px;
+  place-content: center;
+  justify-items: center;
+  text-align: center;
+}
+
+.emptyHero h2 {
+  margin: 0 0 10px;
+  font-size: 44px;
+  font-weight: 600;
+  line-height: 52px;
+}
+
+.emptyHero p {
+  max-width: 520px;
+  margin: 0 0 24px;
+  color: rgba(13, 13, 13, 0.55);
+  font-size: 15px;
+  line-height: 24px;
+}
+
+.message {
+  max-width: 860px;
+  margin: 0 auto 18px;
+  border: 1px solid rgba(13, 13, 13, 0.06);
+  border-radius: 18px;
+  padding: 18px;
+}
+
+.user {
+  background: #f6f6f6;
+}
+
+.assistant {
+  background: #fff;
+}
+
+.messageMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  color: rgba(13, 13, 13, 0.55);
+  font-size: 13px;
+}
+
+.messageContent {
+  color: rgba(13, 13, 13, 0.95);
+  font-size: 15px;
+  line-height: 26px;
+  white-space: pre-wrap;
+}
+
+.sources {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.sourceCard {
+  display: grid;
+  gap: 4px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  color: inherit;
+  padding: 12px;
+  text-decoration: none;
+}
+
+.sourceCard span,
+.sourceCard small {
+  color: rgba(13, 13, 13, 0.55);
+}
+
+.composer {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+  border: 1px solid rgba(13, 13, 13, 0.06);
+  border-radius: 20px;
+  background: #fff;
+  padding: 14px;
+}
+
+.inputRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: end;
+}
+
+@media (max-width: 860px) {
+  .shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    min-height: auto;
+  }
+
+  .workspace {
+    padding: 16px;
+  }
+
+  .topbar,
+  .inputRow {
+    grid-template-columns: 1fr;
+  }
+}
+

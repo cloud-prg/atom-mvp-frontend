@@ -1,0 +1,84 @@
+.page {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 32px;
+  background: #f6f6f6;
+}
+
+.panel {
+  width: min(100%, 480px);
+  padding: 36px;
+  border: 1px solid rgba(13, 13, 13, 0.06);
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 8px 24px -4px rgba(13, 13, 13, 0.08), 0 4px 4px rgba(13, 13, 13, 0.04);
+}
+
+.brand {
+  margin-bottom: 28px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.title {
+  margin: 0 0 12px !important;
+  color: rgba(13, 13, 13, 0.95) !important;
+  font-size: 42px !important;
+  line-height: 50px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+}
+
+.subtitle {
+  margin-bottom: 28px !important;
+  color: rgba(13, 13, 13, 0.55) !important;
+  font-size: 15px;
+  line-height: 24px;
+}
+
+.googleButton {
+  height: 44px;
+  border-radius: 999px;
+}
+
+.demoButton {
+  height: 44px;
+  margin-top: 10px;
+  border-radius: 999px;
+}
+
+.divider {
+  margin: 22px 0;
+  color: rgba(13, 13, 13, 0.45);
+  font-size: 13px;
+  text-align: center;
+}
+
+.form {
+  display: grid;
+  gap: 16px;
+}
+
+.label {
+  display: grid;
+  gap: 8px;
+  color: rgba(13, 13, 13, 0.82);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+@media (max-width: 560px) {
+  .page {
+    padding: 16px;
+  }
+
+  .panel {
+    padding: 24px;
+  }
+
+  .title {
+    font-size: 32px !important;
+    line-height: 40px !important;
+  }
+}
