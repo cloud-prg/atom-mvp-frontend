@@ -32,9 +32,13 @@ VITE_DEMO_MODE=false
 Production:
 
 ```env
-VITE_API_BASE_URL=http://atomApi.jiujiuwarehouse.com
+VITE_API_BASE_URL=http://atom.jiujiuwarehouse.com
 VITE_DEMO_MODE=false
 ```
+
+For production domains, the browser calls the public `/atomApi` prefix, for example
+`http://atom.jiujiuwarehouse.com/atomApi/auth/me`. The server should proxy that public
+prefix to the backend port plus `/api`.
 
 Vite reads `VITE_*` values when the dev server starts or when the app is built. Restart `npm run dev` after changing `.env.local`, and rebuild after changing production env values.
 

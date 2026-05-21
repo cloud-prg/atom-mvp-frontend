@@ -85,6 +85,20 @@ function normalizeBaseUrl(baseUrl: string): string {
   return baseUrl.replace(/\/+$/, '');
 }
 
+export function getPublicApiPrefix(baseUrl: string): '/api' | '/atomApi' {
+  try {
+    const hostname = new URL(baseUrl).hostname;
+    return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1' ? '/api' : '/atomApi';
+  } catch {
+    return '/api';
+  }
+}
+
+function buildPublicApiUrl(root: string, path: string): string {
+  const prefix = getPublicApiPrefix(root);
+  return `${root}${path.replace(/^\/api(?=\/|$)/, prefix)}`;
+}
+
 function mapUser(user: UserOut): User {
   return {
     id: user.id,
@@ -235,7 +249,7 @@ export function createRealApi({ baseUrl, getToken = readApiToken, setToken = wri
       headers.set('Authorization', `Bearer ${token}`);
     }
 
-    const response = await fetch(`${root}${path}`, { ...init, headers });
+    const response = await fetch(buildPublicApiUrl(root, path), { ...init, headers });
     if (!response.ok) {
       const text = await response.text();
       throw new ApiRequestError(text || `Request failed with status ${response.status}`, response.status);
@@ -465,7 +479,7 @@ export function createRealApi({ baseUrl, getToken = readApiToken, setToken = wri
         headers.set('Authorization', `Bearer ${token}`);
       }
 
-      const response = await fetch(`${root}/api/chat/stream`, {
+      const response = await fetch(buildPublicApiUrl(root, '/api/chat/stream'), {
         method: 'POST',
         headers,
         body,

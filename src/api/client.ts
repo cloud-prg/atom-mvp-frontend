@@ -1,5 +1,5 @@
 import { mockApi } from './mockApi';
-import { createRealApi } from './realApi';
+import { createRealApi, getPublicApiPrefix } from './realApi';
 import type { ApiClient } from './types';
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL as string | undefined;
@@ -17,6 +17,6 @@ export const api = selectApiClient({ apiBaseUrl, demoMode });
 export const runtime = {
   apiBaseUrl,
   demoMode,
-  githubLoginUrl: `${oauthBaseUrl.replace(/\/+$/, '')}/api/auth/oauth/github/login`,
+  githubLoginUrl: `${oauthBaseUrl.replace(/\/+$/, '')}${getPublicApiPrefix(oauthBaseUrl)}/auth/oauth/github/login`,
   providerLabel: demoMode ? 'Demo providers' : 'API providers',
 };

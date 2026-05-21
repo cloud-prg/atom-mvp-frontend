@@ -48,6 +48,34 @@ describe('createRealApi streamChat', () => {
     );
   });
 
+  it('keeps the production host unchanged and uses the public atomApi prefix', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          id: 'conversation-1',
+          title: 'Production host check',
+          created_at: '2026-05-21T00:00:00.000Z',
+          updated_at: '2026-05-21T00:01:00.000Z',
+        }),
+        {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        },
+      ),
+    );
+    vi.stubGlobal('fetch', fetchMock);
+
+    await createRealApi({ baseUrl: 'http://atom.jiujiuwarehouse.com', getToken: () => 'token' }).updateConversationTitle(
+      'conversation-1',
+      'Production host check',
+    );
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      'http://atom.jiujiuwarehouse.com/atomApi/conversations/conversation-1',
+      expect.any(Object),
+    );
+  });
+
   it('maps lightweight SSE stream events into frontend messages', async () => {
     const body = [
       sse('message.created', {
