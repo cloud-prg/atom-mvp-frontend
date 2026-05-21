@@ -109,7 +109,16 @@ export const mockApi: ApiClient = {
 
   async listConversations(): Promise<Conversation[]> {
     await delay(80);
-    return loadState().conversations.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+    return loadState().conversations
+      .filter((conversation) => !conversation.archivedAt)
+      .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+  },
+
+  async listArchivedConversations(): Promise<Conversation[]> {
+    await delay(80);
+    return loadState().conversations
+      .filter((conversation) => conversation.archivedAt)
+      .sort((a, b) => (b.archivedAt ?? b.updatedAt).localeCompare(a.archivedAt ?? a.updatedAt));
   },
 
   async createConversation(title = 'New chat'): Promise<Conversation> {
@@ -128,20 +137,40 @@ export const mockApi: ApiClient = {
     return conversation;
   },
 
+  async updateConversationTitle(conversationId: string, title: string): Promise<Conversation> {
+    await delay(80);
+    let renamed: Conversation | undefined;
+    persist((state) => ({
+      ...state,
+      conversations: state.conversations.map((conversation) => {
+        if (conversation.id !== conversationId) return conversation;
+        renamed = {
+          ...conversation,
+          title: title.trim() || 'New chat',
+          updatedAt: now(),
+        };
+        return renamed;
+      }),
+    }));
+    if (!renamed) {
+      throw new Error('Conversation not found');
+    }
+    return renamed;
+  },
+
   async getMessages(conversationId: string): Promise<Message[]> {
     await delay(80);
     return loadState().messages[conversationId] ?? [];
   },
 
   async deleteConversation(conversationId: string): Promise<void> {
-    persist((state) => {
-      const { [conversationId]: _removed, ...messages } = state.messages;
-      return {
-        ...state,
-        conversations: state.conversations.filter((conversation) => conversation.id !== conversationId),
-        messages,
-      };
-    });
+    const archivedAt = now();
+    persist((state) => ({
+      ...state,
+      conversations: state.conversations.map((conversation) =>
+        conversation.id === conversationId ? { ...conversation, archivedAt, updatedAt: archivedAt } : conversation,
+      ),
+    }));
   },
 
   async streamChat(
@@ -150,6 +179,9 @@ export const mockApi: ApiClient = {
       content: string;
       clientMessageId: string;
       searchMode: SearchMode;
+      attachments?: File[];
+      replaceAfterMessageId?: string;
+      signal?: AbortSignal;
     },
     handlers: {
       onConversation: (conversation: Conversation) => void;
@@ -161,6 +193,7 @@ export const mockApi: ApiClient = {
     },
   ): Promise<void> {
     const quota = loadMockQuota();
+    params.signal?.throwIfAborted();
     if (quota.remainingMessages <= 0) {
       throw new Error('Message quota exhausted');
     }
@@ -188,6 +221,21 @@ export const mockApi: ApiClient = {
         messages: { ...current.messages, [conversation!.id]: [] },
       }));
       handlers.onConversation(conversation);
+    }
+
+    if (params.replaceAfterMessageId) {
+      state = persist((current) => {
+        const currentMessages = current.messages[conversation!.id] ?? [];
+        const replacementIndex = currentMessages.findIndex((message) => message.id === params.replaceAfterMessageId);
+        const retainedMessages = replacementIndex >= 0 ? currentMessages.slice(0, replacementIndex) : currentMessages;
+        return {
+          ...current,
+          messages: {
+            ...current.messages,
+            [conversation!.id]: retainedMessages,
+          },
+        };
+      });
     }
 
     const existing = state.messages[conversation.id]?.find((message) => message.clientMessageId === params.clientMessageId);
@@ -233,6 +281,7 @@ export const mockApi: ApiClient = {
     const searchResults = shouldSearch ? getMockSearchResults(params.content) : [];
     if (searchResults.length > 0) {
       await delay(260);
+      params.signal?.throwIfAborted();
       assistantMessage.searchResults = searchResults;
       handlers.onSearch(searchResults);
     }
@@ -242,6 +291,7 @@ export const mockApi: ApiClient = {
 
     for (const char of answer) {
       await delay(12);
+      params.signal?.throwIfAborted();
       assistantMessage.content += char;
       assistantMessage.updatedAt = now();
       persist((current) => ({

@@ -5,6 +5,9 @@ export interface StreamChatParams {
   content: string;
   clientMessageId: string;
   searchMode: SearchMode;
+  attachments?: File[];
+  replaceAfterMessageId?: string;
+  signal?: AbortSignal;
 }
 
 export interface StreamChatHandlers {
@@ -30,7 +33,9 @@ export interface ApiClient {
   logout(): Promise<void>;
   getQuota(): Promise<Quota | null>;
   listConversations(): Promise<Conversation[]>;
+  listArchivedConversations(): Promise<Conversation[]>;
   createConversation(title?: string): Promise<Conversation>;
+  updateConversationTitle(conversationId: string, title: string): Promise<Conversation>;
   getMessages(conversationId: string): Promise<Message[]>;
   deleteConversation(conversationId: string): Promise<void>;
   streamChat(params: StreamChatParams, handlers: StreamChatHandlers): Promise<void>;

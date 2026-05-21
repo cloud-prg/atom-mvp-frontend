@@ -14,6 +14,7 @@ export interface Conversation {
   title: string;
   createdAt: string;
   updatedAt: string;
+  archivedAt?: string;
 }
 
 export interface Message {

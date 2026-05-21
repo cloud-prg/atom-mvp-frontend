@@ -35,4 +35,29 @@ describe('mockApi', () => {
     expect(messages[1].status).toBe('completed');
     expect(messages[1].searchResults?.length).toBeGreaterThan(0);
   });
+
+  it('renames a conversation in local demo mode', async () => {
+    const conversation = await mockApi.createConversation('Planning');
+
+    await mockApi.updateConversationTitle(conversation.id, '  Product sync  ');
+
+    const conversations = await mockApi.listConversations();
+    expect(conversations[0]).toEqual(
+      expect.objectContaining({
+        id: conversation.id,
+        title: 'Product sync',
+      }),
+    );
+  });
+
+  it('keeps archived conversations and their messages available', async () => {
+    const conversation = await mockApi.createConversation('Archived plan');
+
+    await mockApi.deleteConversation(conversation.id);
+
+    expect(await mockApi.listConversations()).toHaveLength(0);
+    const archived = await mockApi.listArchivedConversations();
+    expect(archived[0]).toEqual(expect.objectContaining({ id: conversation.id, archivedAt: expect.any(String) }));
+    await expect(mockApi.getMessages(conversation.id)).resolves.toEqual([]);
+  });
 });

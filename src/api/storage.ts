@@ -1,4 +1,4 @@
-import type { AppState } from '../types/domain';
+import type { AppState, Conversation, Message } from '../types/domain';
 
 const STATE_KEY = 'atom-mvp-state';
 
@@ -23,6 +23,23 @@ export function saveState(state: AppState): void {
   localStorage.setItem(STATE_KEY, JSON.stringify(state));
 }
 
+export function archiveConversationSnapshot(conversation: Conversation, messages: Message[] = []): void {
+  const archivedAt = conversation.archivedAt ?? new Date().toISOString();
+  const archivedConversation = { ...conversation, archivedAt, updatedAt: archivedAt };
+  const state = loadState();
+  saveState({
+    ...state,
+    conversations: [
+      archivedConversation,
+      ...state.conversations.filter((item) => item.id !== conversation.id),
+    ],
+    messages: {
+      ...state.messages,
+      [conversation.id]: messages,
+    },
+  });
+}
+
 export function resetState(): void {
   localStorage.removeItem(STATE_KEY);
 }
@@ -42,4 +59,3 @@ export function saveDraft(userId: string, conversationId: string, value: string)
 export function clearDraft(userId: string, conversationId: string): void {
   localStorage.removeItem(getDraftKey(userId, conversationId));
 }
-
