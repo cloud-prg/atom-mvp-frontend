@@ -32,7 +32,7 @@ VITE_DEMO_MODE=false
 Production:
 
 ```env
-VITE_API_BASE_URL=http://atom.jiujiuwarehouse.com
+VITE_API_BASE_URL=http://atomApi.jiujiuwarehouse.com
 VITE_DEMO_MODE=false
 ```
 
