@@ -36,10 +36,15 @@ export interface SearchResult {
   publishedAt?: string;
 }
 
+export interface MessageQuota {
+  remainingMessages: number;
+  grantedMessages: number;
+  usedMessages: number;
+}
+
 export interface AppState {
   token: string | null;
   user: User | null;
   conversations: Conversation[];
   messages: Record<string, Message[]>;
 }
-

@@ -1,8 +1,10 @@
-import type { AppState, Conversation, Message, SearchMode, SearchResult, User } from '../types/domain';
+import type { AppState, Conversation, Message, MessageQuota, SearchMode, SearchResult, User } from '../types/domain';
 import { createId } from '../utils/id';
 import { loadState, saveState } from './storage';
+import type { ApiClient } from './types';
 
 const delay = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
+const mockQuotaStorageKey = 'atom-mvp-mock-quota';
 
 function now(): string {
   return new Date().toISOString();
@@ -39,9 +41,38 @@ function getMockSearchResults(query: string): SearchResult[] {
   ];
 }
 
-export const mockApi = {
-  async login(email: string, nickname: string): Promise<{ token: string; user: User }> {
+function loadMockQuota(): MessageQuota {
+  const raw = localStorage.getItem(mockQuotaStorageKey);
+  if (!raw) {
+    return { remainingMessages: 3, grantedMessages: 3, usedMessages: 0 };
+  }
+  return JSON.parse(raw) as MessageQuota;
+}
+
+function saveMockQuota(quota: MessageQuota): void {
+  localStorage.setItem(mockQuotaStorageKey, JSON.stringify(quota));
+}
+
+export const mockApi: ApiClient = {
+  async adminLogin(username: string, password: string): Promise<{ token: string; user: User }> {
+    await delay(120);
+    if (username !== 'admin' || password !== 'admin') {
+      throw new Error('Invalid admin credentials');
+    }
+    const user: User = {
+      id: 'user_admin',
+      email: 'admin@local.atom',
+      nickname: 'admin',
+      createdAt: now(),
+    };
+    const token = createId('token');
+    persist((state) => ({ ...state, token, user }));
+    return { token, user };
+  },
+
+  async login(email: string, code: string): Promise<{ token: string; user: User }> {
     await delay(160);
+    const nickname = email.split('@')[0] || code;
     const user: User = {
       id: `user_${email.trim().toLowerCase()}`,
       email: email.trim().toLowerCase(),
@@ -53,6 +84,13 @@ export const mockApi = {
     return { token, user };
   },
 
+  async requestEmailVerification() {
+    await delay(80);
+    return {
+      expiresInSeconds: 600,
+    };
+  },
+
   async me(): Promise<User | null> {
     await delay(60);
     return loadState().user;
@@ -60,6 +98,13 @@ export const mockApi = {
 
   async logout(): Promise<void> {
     persist((state) => ({ ...state, token: null, user: null }));
+  },
+
+  async getQuota() {
+    await delay(40);
+    const quota = loadMockQuota();
+    saveMockQuota(quota);
+    return quota;
   },
 
   async listConversations(): Promise<Conversation[]> {
@@ -115,6 +160,16 @@ export const mockApi = {
       onSearch: (results: SearchResult[]) => void;
     },
   ): Promise<void> {
+    const quota = loadMockQuota();
+    if (quota.remainingMessages <= 0) {
+      throw new Error('Message quota exhausted');
+    }
+    saveMockQuota({
+      ...quota,
+      remainingMessages: quota.remainingMessages - 1,
+      usedMessages: quota.usedMessages + 1,
+    });
+
     let state = loadState();
     let conversation = params.conversationId
       ? state.conversations.find((item) => item.id === params.conversationId)
@@ -215,4 +270,3 @@ export const mockApi = {
     handlers.onComplete({ ...assistantMessage });
   },
 };
-

@@ -1,84 +1,333 @@
 .page {
+  position: relative;
   display: grid;
   min-height: 100vh;
+  grid-template-columns: minmax(420px, 1fr) minmax(560px, 1.08fr);
+  gap: clamp(32px, 5vw, 72px);
+  overflow: hidden;
+  background: #fbfbfb;
+  color: #202020;
+  padding: clamp(28px, 5vw, 74px) clamp(24px, 5vw, 78px) 34px;
+}
+
+.backButton {
+  position: fixed;
+  top: 24px;
+  left: 22px;
+  z-index: 2;
+  display: grid;
+  width: 34px;
+  height: 34px;
   place-items: center;
-  padding: 32px;
-  background: #f6f6f6;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #222;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.backButton:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.loginColumn {
+  display: grid;
+  min-width: 0;
+  align-items: center;
+  justify-items: center;
 }
 
 .panel {
-  width: min(100%, 480px);
-  padding: 36px;
-  border: 1px solid rgba(13, 13, 13, 0.06);
-  border-radius: 24px;
-  background: #fff;
-  box-shadow: 0 8px 24px -4px rgba(13, 13, 13, 0.08), 0 4px 4px rgba(13, 13, 13, 0.04);
-}
-
-.brand {
-  margin-bottom: 28px;
-  font-size: 14px;
-  font-weight: 600;
+  display: grid;
+  width: min(100%, 350px);
+  justify-items: stretch;
+  text-align: center;
 }
 
 .title {
-  margin: 0 0 12px !important;
-  color: rgba(13, 13, 13, 0.95) !important;
-  font-size: 42px !important;
-  line-height: 50px !important;
-  font-weight: 600 !important;
+  margin: 0 0 6px !important;
+  color: #242424 !important;
+  font-size: 24px !important;
+  font-weight: 750 !important;
+  line-height: 32px !important;
   letter-spacing: 0 !important;
 }
 
 .subtitle {
-  margin-bottom: 28px !important;
-  color: rgba(13, 13, 13, 0.55) !important;
-  font-size: 15px;
-  line-height: 24px;
+  margin: 0 0 18px !important;
+  color: rgba(32, 32, 32, 0.55) !important;
+  font-size: 14px;
+  line-height: 20px;
 }
 
 .googleButton {
-  height: 44px;
-  border-radius: 999px;
+  height: 42px;
+  border-color: rgba(20, 20, 20, 0.12);
+  border-radius: 8px;
+  background: #fff;
+  color: #282828;
+  font-weight: 650;
+  box-shadow: none;
 }
 
-.demoButton {
-  height: 44px;
-  margin-top: 10px;
-  border-radius: 999px;
+.googleButton:hover {
+  border-color: rgba(20, 20, 20, 0.32) !important;
+  color: #111 !important;
 }
 
 .divider {
-  margin: 22px 0;
-  color: rgba(13, 13, 13, 0.45);
-  font-size: 13px;
-  text-align: center;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  margin: 18px 0 16px;
+  color: rgba(32, 32, 32, 0.52);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.divider span {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(32, 32, 32, 0.12), transparent);
+}
+
+.divider em {
+  font-style: normal;
 }
 
 .form {
   display: grid;
-  gap: 16px;
+  width: 100%;
+  gap: 12px;
+}
+
+.form :global(.ant-segmented) {
+  border-radius: 8px;
+  background: #f3f3f3;
+}
+
+.form :global(.ant-segmented-item) {
+  border-radius: 7px;
 }
 
 .label {
   display: grid;
   gap: 8px;
-  color: rgba(13, 13, 13, 0.82);
-  font-size: 14px;
-  font-weight: 500;
+  color: rgba(32, 32, 32, 0.76);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: left;
 }
 
-@media (max-width: 560px) {
+.form :global(.ant-input),
+.form :global(.ant-input-affix-wrapper) {
+  height: 40px;
+  border-color: rgba(20, 20, 20, 0.1);
+  border-radius: 8px;
+  background: #f6f6f6;
+  color: #202020;
+  font-size: 14px;
+}
+
+.form :global(.ant-input:hover),
+.form :global(.ant-input-affix-wrapper:hover) {
+  border-color: rgba(20, 20, 20, 0.24);
+}
+
+.form :global(.ant-input:focus),
+.form :global(.ant-input-affix-wrapper-focused) {
+  border-color: rgba(40, 86, 255, 0.5);
+  box-shadow: 0 0 0 3px rgba(40, 86, 255, 0.1);
+}
+
+.codeRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+}
+
+.codeRow :global(.ant-btn) {
+  height: 40px;
+  border-radius: 8px;
+  font-weight: 650;
+}
+
+.form > :global(.ant-btn-primary) {
+  height: 40px;
+  margin-top: 6px;
+  border: 0;
+  border-radius: 8px;
+  background: #b8b8b8;
+  color: #fff;
+  font-weight: 750;
+  box-shadow: none;
+}
+
+.form > :global(.ant-btn-primary):hover {
+  background: #2563ff !important;
+}
+
+.visualColumn {
+  display: grid;
+  min-width: 0;
+  align-content: center;
+  gap: 20px;
+}
+
+.heroCard {
+  position: relative;
+  min-height: min(72vh, 690px);
+  overflow: hidden;
+  border-radius: 30px;
+  background:
+    radial-gradient(circle at 18% 85%, rgba(255, 255, 255, 0.18), transparent 22%),
+    linear-gradient(135deg, #3e63ff 0%, #4866f3 100%);
+  color: #fff;
+  padding: 48px 42px;
+}
+
+.visualBrand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+  font-size: 25px;
+}
+
+.brandMark {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #3e63ff;
+  font-size: 18px;
+  font-weight: 850;
+}
+
+.heroCard h2 {
+  max-width: 610px;
+  margin: 58px auto 28px;
+  color: #fff;
+  font-size: clamp(30px, 3.2vw, 36px);
+  font-weight: 800;
+  line-height: 1.22;
+  letter-spacing: 0;
+  text-align: center;
+}
+
+.heroCard ul {
+  display: grid;
+  width: max-content;
+  max-width: 100%;
+  gap: 20px;
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+}
+
+.heroCard li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: rgba(255, 255, 255, 0.96);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 24px;
+}
+
+.heroCard li :global(.anticon) {
+  flex: 0 0 auto;
+  color: #f4f7ff;
+  font-size: 17px;
+}
+
+.mascotLeft,
+.mascotRight {
+  position: absolute;
+  filter: drop-shadow(0 28px 34px rgba(20, 35, 85, 0.24));
+}
+
+.mascotLeft {
+  left: -36px;
+  bottom: 100px;
+  width: 178px;
+  transform: rotate(-9deg);
+}
+
+.mascotRight {
+  right: -36px;
+  bottom: 90px;
+  width: 170px;
+  transform: rotate(8deg);
+}
+
+.trustBlock {
+  display: grid;
+  justify-items: center;
+  gap: 18px;
+}
+
+.trustBlock p {
+  margin: 0;
+  color: rgba(32, 32, 32, 0.82);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.logoCloud {
+  display: flex;
+  max-width: 680px;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 18px 30px;
+}
+
+.logoCloud span {
+  color: rgba(32, 32, 32, 0.78);
+  font-size: 16px;
+  font-weight: 850;
+  filter: grayscale(1);
+}
+
+@media (max-width: 980px) {
   .page {
-    padding: 16px;
+    grid-template-columns: 1fr;
+    place-items: center;
+    padding: 92px 20px 40px;
+  }
+
+  .loginColumn {
+    width: 100%;
   }
 
   .panel {
-    padding: 24px;
+    width: min(100%, 380px);
   }
 
-  .title {
-    font-size: 32px !important;
-    line-height: 40px !important;
+  .visualColumn {
+    display: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .page {
+    align-items: start;
+    padding: 82px 18px 36px;
+  }
+
+  .backButton {
+    top: 18px;
+    left: 14px;
+  }
+
+  .panel {
+    width: 100%;
+  }
+
+  .codeRow {
+    grid-template-columns: 1fr;
   }
 }
