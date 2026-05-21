@@ -1,7 +1,7 @@
 import { Button, Input, Segmented, Typography, message } from 'antd';
 import { ArrowLeftOutlined, ArrowRightOutlined, CheckCircleFilled, GithubOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { api, runtime } from '../api/client';
 import type { User } from '../types/domain';
 import styles from './LoginPage.module.css';
@@ -12,17 +12,21 @@ interface LoginPageProps {
 
 export default function LoginPage({ onLogin }: LoginPageProps) {
   const navigate = useNavigate();
+  const sliderRef = useRef<HTMLDivElement>(null);
   const [mode, setMode] = useState<'admin' | 'email'>('admin');
   const [username, setUsername] = useState('admin');
   const [password, setPassword] = useState('admin');
   const [email, setEmail] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
+  const [captchaProgress, setCaptchaProgress] = useState(0);
+  const [captchaSolved, setCaptchaSolved] = useState(false);
+  const [draggingCaptcha, setDraggingCaptcha] = useState(false);
   const [sendingCode, setSendingCode] = useState(false);
   const [codeCooldown, setCodeCooldown] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const canSubmit = mode === 'admin'
     ? username.trim().length > 0 && password.length > 0
-    : isGmailAddress(email) && verificationCode.length === 6;
+    : isGmailAddress(email) && verificationCode.length === 6 && captchaSolved;
 
   useEffect(() => {
     if (codeCooldown <= 0) return undefined;
@@ -38,6 +42,59 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
 
   function isGmailAddress(value: string) {
     return /^[^\s@]+@gmail\.com$/i.test(value.trim());
+  }
+
+  function resetCaptcha() {
+    setCaptchaProgress(0);
+    setCaptchaSolved(false);
+    setDraggingCaptcha(false);
+  }
+
+  function updateCaptchaFromClientX(clientX: number) {
+    if (!sliderRef.current || captchaSolved) return;
+    const rect = sliderRef.current.getBoundingClientRect();
+    const nextProgress = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+    if (nextProgress >= 0.94) {
+      setCaptchaProgress(1);
+      setCaptchaSolved(true);
+      setDraggingCaptcha(false);
+      message.success('滑动验证已完成');
+      return;
+    }
+    setCaptchaProgress(nextProgress);
+  }
+
+  function handleCaptchaPointerDown(event: React.PointerEvent<HTMLButtonElement>) {
+    if (captchaSolved) return;
+    event.currentTarget.setPointerCapture(event.pointerId);
+    setDraggingCaptcha(true);
+    updateCaptchaFromClientX(event.clientX);
+  }
+
+  function handleCaptchaPointerMove(event: React.PointerEvent<HTMLButtonElement>) {
+    if (!draggingCaptcha) return;
+    updateCaptchaFromClientX(event.clientX);
+  }
+
+  function handleCaptchaPointerEnd() {
+    if (captchaSolved) return;
+    setDraggingCaptcha(false);
+    setCaptchaProgress(0);
+  }
+
+  function handleCaptchaKeyDown(event: React.KeyboardEvent<HTMLButtonElement>) {
+    if (captchaSolved) return;
+    if (event.key === 'ArrowRight' || event.key === 'End') {
+      event.preventDefault();
+      setCaptchaProgress(1);
+      setCaptchaSolved(true);
+      message.success('滑动验证已完成');
+      return;
+    }
+    if (event.key === 'ArrowLeft' || event.key === 'Home') {
+      event.preventDefault();
+      setCaptchaProgress(0);
+    }
   }
 
   async function handleSubmit() {
@@ -62,6 +119,10 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
     }
     if (verificationCode.length !== 6) {
       message.warning('请输入 6 位邮箱验证码');
+      return;
+    }
+    if (!captchaSolved) {
+      message.warning('请先完成滑动拼图验证');
       return;
     }
     setSubmitting(true);
@@ -94,6 +155,10 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
     }
     if (!isGmailAddress(email)) {
       message.warning('请先输入 Gmail 邮箱');
+      return;
+    }
+    if (!captchaSolved) {
+      message.warning('请先完成滑动拼图验证');
       return;
     }
     setSendingCode(true);
@@ -140,7 +205,10 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
             <Segmented
               block
               value={mode}
-              onChange={(value) => setMode(value as 'admin' | 'email')}
+              onChange={(value) => {
+                setMode(value as 'admin' | 'email');
+                resetCaptcha();
+              }}
               options={[
                 { label: '账号密码', value: 'admin' },
                 { label: '邮箱验证码', value: 'email' },
@@ -162,8 +230,55 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
               <>
                 <label className={styles.label}>
                   邮箱
-                  <Input size="large" placeholder="Enter your Gmail address" value={email} onChange={(event) => setEmail(event.target.value)} />
+                  <Input
+                    size="large"
+                    placeholder="Enter your Gmail address"
+                    value={email}
+                    onChange={(event) => {
+                      setEmail(event.target.value);
+                      resetCaptcha();
+                    }}
+                  />
                 </label>
+                <div className={styles.captchaField}>
+                  <div className={styles.captchaHeader}>
+                    <span>滑动拼图验证</span>
+                    <button className={styles.captchaReset} type="button" onClick={resetCaptcha} disabled={!captchaProgress && !captchaSolved}>
+                      重置
+                    </button>
+                  </div>
+                  <div
+                    ref={sliderRef}
+                    className={`${styles.captchaBox} ${captchaSolved ? styles.captchaSolved : ''}`}
+                    style={{ '--captcha-progress': captchaProgress } as React.CSSProperties}
+                  >
+                    <div className={styles.captchaScene}>
+                      <span className={styles.captchaCutout} />
+                      <span className={styles.captchaPiece} aria-hidden="true" />
+                    </div>
+                    <div className={styles.captchaTrack}>
+                      <span className={styles.captchaFill} />
+                      <span className={styles.captchaText}>{captchaSolved ? '验证完成' : '按住滑块，拖到右侧缺口'}</span>
+                      <button
+                        className={styles.captchaThumb}
+                        type="button"
+                        aria-label={captchaSolved ? '滑动拼图验证已完成' : '拖动完成滑动拼图验证'}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-valuenow={Math.round(captchaProgress * 100)}
+                        disabled={captchaSolved}
+                        role="slider"
+                        onPointerDown={handleCaptchaPointerDown}
+                        onPointerMove={handleCaptchaPointerMove}
+                        onPointerUp={handleCaptchaPointerEnd}
+                        onPointerCancel={handleCaptchaPointerEnd}
+                        onKeyDown={handleCaptchaKeyDown}
+                      >
+                        {captchaSolved ? <CheckCircleFilled /> : <ArrowRightOutlined />}
+                      </button>
+                    </div>
+                  </div>
+                </div>
                 <label className={styles.label}>
                   邮箱验证码
                   <div className={styles.codeRow}>
@@ -175,7 +290,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
                       onChange={(event) => setVerificationCode(event.target.value.replace(/\D/g, ''))}
                       onPressEnter={handleSubmit}
                     />
-                    <Button size="large" loading={sendingCode} disabled={codeCooldown > 0} onClick={handleSendCode}>
+                    <Button size="large" loading={sendingCode} disabled={codeCooldown > 0 || !captchaSolved} onClick={handleSendCode}>
                       {codeCooldown > 0 ? `${codeCooldown}s` : '发送验证码'}
                     </Button>
                   </div>

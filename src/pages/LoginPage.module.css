@@ -153,19 +153,214 @@
   font-weight: 650;
 }
 
+.captchaField {
+  display: grid;
+  gap: 8px;
+  color: rgba(32, 32, 32, 0.76);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: left;
+}
+
+.captchaHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.captchaReset {
+  border: 0;
+  background: transparent;
+  color: rgba(62, 99, 255, 0.88);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 0;
+}
+
+.captchaReset:disabled {
+  color: rgba(32, 32, 32, 0.28);
+  cursor: default;
+}
+
+.captchaBox {
+  --captcha-progress: 0;
+  display: grid;
+  gap: 8px;
+  border: 1px solid rgba(20, 20, 20, 0.1);
+  border-radius: 8px;
+  background: #f6f6f6;
+  padding: 10px;
+}
+
+.captchaScene {
+  position: relative;
+  height: 64px;
+  overflow: hidden;
+  border-radius: 7px;
+  background:
+    linear-gradient(135deg, rgba(62, 99, 255, 0.18), transparent 56%),
+    radial-gradient(circle at 18% 24%, rgba(255, 141, 52, 0.28), transparent 18%),
+    linear-gradient(90deg, #eef1ff 0%, #f7f8fb 100%);
+}
+
+.captchaScene::before,
+.captchaScene::after {
+  position: absolute;
+  content: '';
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.captchaScene::before {
+  width: 84px;
+  height: 84px;
+  right: 34px;
+  top: -42px;
+}
+
+.captchaScene::after {
+  width: 120px;
+  height: 120px;
+  left: -54px;
+  bottom: -76px;
+}
+
+.captchaCutout,
+.captchaPiece {
+  position: absolute;
+  top: 18px;
+  width: 32px;
+  height: 28px;
+  border-radius: 8px;
+}
+
+.captchaCutout {
+  right: 36px;
+  border: 1px dashed rgba(32, 32, 32, 0.2);
+  background: rgba(32, 32, 32, 0.08);
+  box-shadow: inset 0 2px 8px rgba(32, 32, 32, 0.08);
+}
+
+.captchaPiece {
+  left: calc(10px + (100% - 92px) * var(--captcha-progress));
+  z-index: 1;
+  background: linear-gradient(135deg, #3e63ff, #ff8d34);
+  box-shadow: 0 10px 20px rgba(62, 99, 255, 0.2);
+  transition: left 120ms ease;
+}
+
+.captchaPiece::before {
+  position: absolute;
+  top: -7px;
+  left: 9px;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: #3e63ff;
+  content: '';
+}
+
+.captchaTrack {
+  position: relative;
+  height: 38px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px rgba(20, 20, 20, 0.08);
+}
+
+.captchaFill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: calc(var(--captcha-progress) * 100%);
+  background: linear-gradient(90deg, rgba(62, 99, 255, 0.14), rgba(62, 99, 255, 0.28));
+}
+
+.captchaText {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: rgba(32, 32, 32, 0.5);
+  font-size: 12px;
+  font-weight: 700;
+  pointer-events: none;
+}
+
+.captchaThumb {
+  position: absolute;
+  top: 3px;
+  left: calc(3px + (100% - 36px) * var(--captcha-progress));
+  z-index: 1;
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border: 0;
+  border-radius: 7px;
+  background: #3e63ff;
+  color: #fff;
+  cursor: grab;
+  font-size: 14px;
+  touch-action: none;
+  transition: left 120ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+
+.captchaThumb:active {
+  cursor: grabbing;
+}
+
+.captchaThumb:focus-visible {
+  outline: 3px solid rgba(62, 99, 255, 0.24);
+  outline-offset: 2px;
+}
+
+.captchaSolved {
+  border-color: rgba(33, 150, 83, 0.28);
+  background: #f3fbf6;
+}
+
+.captchaSolved .captchaFill {
+  background: linear-gradient(90deg, rgba(33, 150, 83, 0.16), rgba(33, 150, 83, 0.3));
+}
+
+.captchaSolved .captchaText {
+  color: #20884f;
+}
+
+.captchaSolved .captchaThumb {
+  background: #219653;
+  cursor: default;
+}
+
+.captchaSolved .captchaPiece {
+  left: calc(100% - 68px);
+  background: linear-gradient(135deg, #219653, #7bbf69);
+}
+
 .form > :global(.ant-btn-primary) {
   height: 40px;
   margin-top: 6px;
   border: 0;
   border-radius: 8px;
-  background: #b8b8b8;
+  background: #3e63ff;
   color: #fff;
   font-weight: 750;
   box-shadow: none;
 }
 
-.form > :global(.ant-btn-primary):hover {
+.form > :global(.ant-btn-primary:not(:disabled)):hover,
+.form > :global(.ant-btn-primary:not(:disabled)):focus-visible {
   background: #2563ff !important;
+}
+
+.form > :global(.ant-btn-primary:disabled),
+.form > :global(.ant-btn-primary.ant-btn-disabled) {
+  background: #b8b8b8 !important;
+  color: #fff;
+  cursor: not-allowed;
 }
 
 .visualColumn {
